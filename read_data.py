@@ -15,6 +15,7 @@ def read_input_txt(filename):
         line = line.rstrip('\n')
         # these if-statements look for the headers and change the section
         # it's currently been read to True, and the others to False
+        # the _count variables make sure all sections are present in the txt file
         if line == "[Rulebase]":
             found_rulebase = True
             found_fuzzysets = False
@@ -35,11 +36,11 @@ def read_input_txt(filename):
             continue
         # while the current section is true, add the next lines to array
         if found_rulebase & (line != ""):
-            rulebase.append(line)
+            rulebase.append(line.lower())
         if found_fuzzysets & (line != ""):
-            fuzzysets.append(line)
+            fuzzysets.append(line.lower())
         if found_measurements & (line != ""):
-            measurements.append(line)
+            measurements.append(line.lower())
     if rulebase_count == 0 or fuzzysets_count == 0 or measurements_count == 0:
         return False
     return {"rulebase": rulebase, "fuzzysets": fuzzysets, "measurements": measurements}
@@ -51,13 +52,16 @@ def format_rules(rulebase_input):
     # Rule<n>: if <variable_name> is <variable_status> [and|or] [<variable_name_i> is <variable_status_i>]
     # then <variable_name_j> is <variable_status_j>
 
-    # first item in the array is the rulebase name
-    rulebase_name = rulebase_input[0].rstrip()
-    rules = {rulebase_name: []}
-    del rulebase_input[0]
+    rulebase_name = ""
+    rules = {}
     for item in rulebase_input:
-        item = item.replace(": ", ":")
-        rules[rulebase_name].append(item.split(':')[1])
+        # we use this check to try and figure out which one is the rulebase name
+        if "then" not in item or "if" not in item:
+            rulebase_name = item.rstrip()
+            rules[rulebase_name] = []
+        if ":" in item:
+            item = item.replace(": ", ":")
+            rules[rulebase_name].append(item.split(':')[1])
     return rules
 
 

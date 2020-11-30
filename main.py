@@ -10,32 +10,37 @@ def build_fuzzy_universe(fuzzy_sets, rulebase_name):
     # create custom membership functions for variable, for each of its statuses.
     for variable_name, variable_statuses in fuzzy_sets.items():
         # find range of statuses values for each variable - aka their smallest and highest value
-        small_values = []
-        large_values = []
-        for variable_status in variable_statuses:
-            # take the smallest/largest value for each status
-            small_values.append(min(variable_status[1]))
-            large_values.append(max(variable_status[1]))
-        # then take the smallest/largest value among all statuses
-        smallest = min(small_values)
-        largest = max(large_values)
+        smallest, largest = find_minmax_values(variable_statuses)
         # now create the ctrl universe variable using the aforementioned range
         if variable_name.lower() == rulebase_name.lower():
             # the +2 is currently a mystery - doesn't work without it
-            universe_variables[variable_name] = ctrl.Consequent(np.arange(smallest, largest+2), variable_name)
+            universe_variables[variable_name] = ctrl.Consequent(np.arange(smallest, largest + 2), variable_name)
         else:
-            universe_variables[variable_name] = ctrl.Antecedent(np.arange(smallest, largest+2), variable_name)
+            universe_variables[variable_name] = ctrl.Antecedent(np.arange(smallest, largest + 2), variable_name)
         # adding each of the statuses and their values to the universe variables
         for status in variable_statuses:
             status_name = status[0]
             status_values = status[1]
             if len(status_values) == 3:
                 universe_variables[variable_name][status_name] = fuzz.trimf(universe_variables[variable_name].universe,
-                                                                         status_values)
+                                                                            status_values)
             if len(status_values) == 4:
                 universe_variables[variable_name][status_name] = fuzz.trapmf(universe_variables[variable_name].universe,
-                                                                         status_values)
+                                                                             status_values)
     return universe_variables
+
+
+def find_minmax_values(variable_statuses):
+    small_values = []
+    large_values = []
+    for variable_status in variable_statuses:
+        # take the smallest/largest value for each status
+        small_values.append(min(variable_status[1]))
+        large_values.append(max(variable_status[1]))
+    # then take the smallest/largest value among all statuses
+    smallest = min(small_values)
+    largest = max(large_values)
+    return smallest, largest
 
 
 def build_rules(rules, variables):
@@ -43,7 +48,7 @@ def build_rules(rules, variables):
     ctrl_rules = []
     for rule in rules:
         keywords = re.findall('(\w+) is (\w+)', rule)
-        for i in range(0, len(keywords)-1):
+        for i in range(0, len(keywords) - 1):
             if i == 0:
                 args = variables[keywords[i][0]][keywords[i][1]]
             else:
@@ -71,8 +76,8 @@ def is_data_valid(fuzzy_sets, rules, measurements):
     if len(fuzzy_sets) == 0 or len(rules) == 0 or len(measurements) == 0:
         print("ERROR: One of the sections is empty!")
     if len(fuzzy_sets) <= len(measurements):
-        print("ERROR: Not enough fuzzy sets present in the input, or too many measurements have been included. "
-              "Make sure a fuzzy set is present for the consequent variable as well!")
+        print("ERROR: Not enough fuzzy sets have been added in the input, or too many measurements have been included. "
+              "Make sure a fuzzy set is present for each variable, including consequent variables.")
     if not all(key in fuzzy_sets.keys() for key in rules.keys()):
         print("ERROR: Couldn't recognise some of the RuleBase names! The RuleBase names "
               "need to correspond names of the consequent variables.")
@@ -80,10 +85,10 @@ def is_data_valid(fuzzy_sets, rules, measurements):
         return True
 
 
-
 def main():
     # first, read the main file and separate the sections
     input_txt = read_data.read_input_txt("rules_and_data")
+    # input_txt will return false if any of the 3 mandatory headers are missing
     if not input_txt:
         print("The headers '[Rulebase]', '[FuzzySets]' and '[Measurements]' are required before each section. "
               "Please make sure they are included in the input file and try again. Exiting...")
@@ -98,13 +103,6 @@ def main():
         print("The input data is not valid. Please check the message above for more details. Exiting...")
         exit(1)
 
-    # print("Measurements: ")
-    # print(measurements)
-    # print("Fuzzy Sets: ")
-    # print(fuzzy_sets)
-    # print("Rule Base:")
-    # print(rules)
-
     # we build a different fuzzy universe for each rule base (in case there are multiple given)!
     for rulebase_name, rules_values in rules.items():
         universe_variables = build_fuzzy_universe(fuzzy_sets, rulebase_name)
@@ -113,7 +111,7 @@ def main():
         calculated_rulebase = defuzzify(ctrl_rules, measurements)
         print("The defuzzified value for " + rulebase_name + " is:")
         print(calculated_rulebase.output[rulebase_name])
-        #print(universe_variables["Tip"].view())
+        # print(universe_variables["Tip"].view())
 
 
 if __name__ == "__main__":
