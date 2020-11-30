@@ -1,21 +1,23 @@
 [Rulebase]
 Tip
-Rule1: if ServiceQuality is Low and FoodQuality is Low then Tip is Low
-Rule2: if ServiceQuality is Medium then Tip is Medium
-Rule3: if ServiceQuality is High and FoodQuality is High then Tip is High
+Rule1: if Food is Low or Service is Low then Tip is Low
+Rule2: if Service is Medium then Tip is Medium
+Rule3: if Food is High or Service is High then Tip is High
+
 [FuzzySets]
-FoodQuality
-Low (1, 1.5, 2, 2.5)
-Medium (2, 2.5, 3, 4.5)
-High (3.5, 4, 4.5, 5)
-ServiceQuality
-Low (1, 2.5, 3, 3.5)
-Medium (3, 3.5, 4.5, 6.5)
-High (4.5, 5.5, 7.5, 10)
+Food
+Low (0, 0, 0, 5)
+Medium (0, 5, 5, 10)
+High (5, 10, 10, 10)
+Service
+Low (0, 0, 5)
+Medium (0, 5, 10)
+High (5, 10, 10)
 Tip
-Low (0, 3, 5, 10)
-Medium (5, 10, 15, 20)
-High (15, 20, 25, 30)
+Low (0, 0, 13)
+Medium (0, 13, 25)
+High (13, 25, 25)
+
 [Measurements]
-FoodQuality = 4
-ServiceQuality = 6
+Food = 6.5
+Service = 9.8

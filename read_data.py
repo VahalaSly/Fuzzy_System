@@ -7,6 +7,9 @@ def read_input_txt(filename):
     found_rulebase = False
     found_fuzzysets = False
     found_measurements = False
+    rulebase_count = 0
+    fuzzysets_count = 0
+    measurements_count = 0
     file = open(filename, "r")
     for line in file:
         line = line.rstrip('\n')
@@ -16,24 +19,29 @@ def read_input_txt(filename):
             found_rulebase = True
             found_fuzzysets = False
             found_measurements = False
+            rulebase_count = 1
             continue
         if line == "[FuzzySets]":
             found_rulebase = False
             found_fuzzysets = True
             found_measurements = False
+            fuzzysets_count = 1
             continue
         if line == "[Measurements]":
             found_rulebase = False
             found_fuzzysets = False
             found_measurements = True
+            measurements_count = 1
             continue
         # while the current section is true, add the next lines to array
-        if found_rulebase:
+        if found_rulebase & (line != ""):
             rulebase.append(line)
-        if found_fuzzysets:
+        if found_fuzzysets & (line != ""):
             fuzzysets.append(line)
-        if found_measurements:
+        if found_measurements & (line != ""):
             measurements.append(line)
+    if rulebase_count == 0 or fuzzysets_count == 0 or measurements_count == 0:
+        return False
     return {"rulebase": rulebase, "fuzzysets": fuzzysets, "measurements": measurements}
 
 
@@ -85,7 +93,7 @@ def format_measurements(measurements_input):
         # add each measurement as item of dictionary
         try:
             variable_name = item.split('=')[0].rstrip()
-            variable_value = int(item.split('=')[1])
+            variable_value = float(item.split('=')[1])
             measurements[variable_name] = variable_value
         except Exception as e:
             print(e)
