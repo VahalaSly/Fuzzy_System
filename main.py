@@ -2,10 +2,12 @@ import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 from Fuzzy_System import read_data
+import re
 
 
 def build_fuzzy_universe(fuzzy_sets, rulebase_name):
     universe_variables = {}
+    # create custom membership functions for variable, for each of its statuses.
     for variable_name, variable_statuses in fuzzy_sets.items():
         # TODO: Figure out way to establish lowest and highest values for status? More for loops? (Pain??)
         if variable_name.lower() == rulebase_name.lower():
@@ -15,12 +17,38 @@ def build_fuzzy_universe(fuzzy_sets, rulebase_name):
         for status in variable_statuses:
             status_name = status[0]
             status_values = status[1]
-            # create custom membership functions for variable, for each of its statuses.
             universe_variables[variable_name][status_name] = fuzz.trapmf(universe_variables[variable_name].universe, status_values)
+    return universe_variables
 
 
+def build_rules(rules, variables):
+    ctrl_rules = []
+    for rule in rules:
+        args = []
+        # TODO: Dynamic creation of rules args to allow for multiple and/or
+        keywords = re.findall('(\w+) is (\w+)', rule)
+        if "and" in rule.lower():
+            ctrl_rules.append(
+                ctrl.Rule(variables[keywords[0][0]][keywords[0][1]] & variables[keywords[1][0]][keywords[1][1]],
+                          variables[keywords[2][0]][keywords[2][1]]))
+        elif "or" in rule.lower():
+            ctrl_rules.append(
+                ctrl.Rule(variables[keywords[0][0]][keywords[0][1]] | variables[keywords[1][0]][keywords[1][1]],
+                          variables[keywords[2][0]][keywords[2][1]]))
+        else:
+            ctrl_rules.append(
+                ctrl.Rule(variables[keywords[0][0]][keywords[0][1]], variables[keywords[1][0]][keywords[1][1]]))
+    return ctrl_rules
 
 
+def defuzzify(rules, measurements):
+    rule_ctrl = ctrl.ControlSystem(rules)
+    rulebase = ctrl.ControlSystemSimulation(rule_ctrl)
+    for variable,value in measurements.items():
+        rulebase.input[variable] = value
+    # Crunch the numbers
+    rulebase.compute()
+    return rulebase
 
 
 def main():
@@ -41,8 +69,12 @@ def main():
     print(rules)
 
     # we build a different fuzzy universe for each rule base!
-    for rulebase_name,rules_value in rules.items():
-        build_fuzzy_universe(fuzzy_sets, rulebase_name)
+    for rulebase_name, rules_values in rules.items():
+        universe_variables = build_fuzzy_universe(fuzzy_sets, rulebase_name)
+        ctrl_rules = build_rules(rules_values, universe_variables)
+        calculated_rulebase = defuzzify(ctrl_rules, measurements)
+        print("The defuzzified value for " + rulebase_name + " is:")
+        print(calculated_rulebase.output[rulebase_name])
 
 
 if __name__ == "__main__":
