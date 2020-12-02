@@ -11,21 +11,21 @@ Takes a txt file as input with the following format:
   
   #FuzzySets
   <variable-1>
-  <status-x> <4Tuple1>
+  <status-x> <4-tuple>
   ...
-  <status-xn> <4Tuple1>
+  <status-xn> <4-tuple>
   
   <variable-2>
-  <status-y> <4Tuple1>
+  <status-y> <4-tuple>
   ...
-  <status-yn> <4Tuple1>
+  <status-yn> <4-tuple>
   
   ...
   
   <consequent_variable-i>
-  <status-j> <4Tuple1>
+  <status-j> <4-tuple>
   ...
-  <status-jn> <4Tuple1>
+  <status-jn> <4-tuple>
   
   #Measurements
   <variable-1> = <RealValue-1>
