@@ -3,6 +3,7 @@ import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 from Fuzzy_System import read_data
 import re
+import logging
 
 
 def build_fuzzy_universe(fuzzy_sets, rulebase_name):
@@ -74,13 +75,11 @@ def defuzzify(rules, measurements):
 
 def is_data_valid(fuzzy_sets, rules, measurements):
     if len(fuzzy_sets) == 0 or len(rules) == 0 or len(measurements) == 0:
-        print("ERROR: One of the sections is empty!")
+        ValueError("ERROR: One of the sections is empty!")
     if len(fuzzy_sets) <= len(measurements):
-        print("ERROR: Not enough fuzzy sets have been added in the input, or too many measurements have been included. "
-              "Make sure a fuzzy set is present for each variable, including consequent variables.")
-    if not all(key in fuzzy_sets.keys() for key in rules.keys()):
-        print("ERROR: Couldn't recognise some of the RuleBase names! The RuleBase names "
-              "need to correspond names of the consequent variables.")
+        ValueError(
+            "ERROR: Not enough fuzzy sets have been added in the input, or too many measurements have been included. "
+            "Make sure a fuzzy set is present for each variable, including consequent variables.")
     else:
         return True
 
@@ -90,17 +89,17 @@ def main():
     input_txt = read_data.read_input_txt("rules_and_data")
     # input_txt will return false if any of the 3 mandatory headers are missing
     if not input_txt:
-        print("The headers '[Rulebase]', '[FuzzySets]' and '[Measurements]' are required before each section. "
-              "Please make sure they are included in the input file and try again. Exiting...")
+        logging.warning("The headers '#Rulebase', '#FuzzySets' and '#Measurements' are required before each section. "
+                        "Please make sure they are included in the input file and try again. Exiting...")
         exit(1)
 
     # then, format the sections according to need
     fuzzy_sets = read_data.format_fuzzy_sets(input_txt["fuzzysets"])  # dict of dicts
-    rules = read_data.format_rules(input_txt["rulebase"])  # dict of tuples
+    rules = read_data.format_rules(input_txt["rulebase"])  # dict
     measurements = read_data.format_measurements(input_txt["measurements"])  # dict
 
     if not is_data_valid(fuzzy_sets, rules, measurements):
-        print("The input data is not valid. Please check the message above for more details. Exiting...")
+        logging.warning("The input data is not valid. Please check the message above for more details. Exiting...")
         exit(1)
 
     # we build a different fuzzy universe for each rule base (in case there are multiple given)!

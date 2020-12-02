@@ -1,16 +1,16 @@
-[Rulebase]
+#Rulebase
 Tip
 Rule1: if Food is Low or Service is Low then Tip is Low
 Rule2: if Service is Medium then Tip is Medium
 Rule3: if Food is High or Service is High then Tip is High
-Rule4: if Food is Medium and Service is High then Tip is High
+Rule4: if Food is Medium and Service is High
 
 Happiness
 Rule1: if Food is Low or Service is Low then Happiness is Low
 Rule2: if Service is Medium then Happiness is Low
 Rule3: if Food is High and Service is High then Happiness is High
 
-[FuzzySets]
+#FuzzySets
 Food
 Low (0, 0, 0, 5)
 Medium (0, 5, 5, 10)
@@ -28,6 +28,6 @@ Low (0, 5, 15)
 Medium (15, 35, 50)
 High (40, 65, 80)
 
-[Measurements]
+#Measurements
 Food = 6.5
 Service = 9.8
