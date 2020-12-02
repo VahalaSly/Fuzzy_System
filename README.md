@@ -4,7 +4,7 @@ Created for university project. Makes use of the skfuzzy library.
 Takes a txt file as input with the following format:
 ```
   [Rulebase]
-  <RuleBaseName>
+  <consequent_variable-i>
   Rule 1:	if <variable-1> is <status_x> [and|or] [<variable-n> is <status-n>] then <consequent_variable-i> is <status-j>
   Rule 2:	if <variable-2> is <status-y> [and|or] [<variable-n> is <status-n>] then <consequent_variable-i> is <status-j>
   ...
