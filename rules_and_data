@@ -12,21 +12,21 @@ Rule3: if Food is High and Service is High then Happiness is High
 
 #FuzzySets
 Food
-Low (0, 0, 0, 5)
-Medium (0, 5, 5, 10)
-High (5, 10, 10, 10)
+Low 0 0 0 5
+Medium 0 5 5 10
+High 5 10 10 10
 Service
-Low (0, 0, 5)
-Medium (0, 5, 10)
-High (5, 10, 10)
+Low 0 0 5
+Medium 0 5 10
+High 5 10 10
 Tip
-Low (0, 0, 13)
-Medium (0, 13, 25)
-High (13, 25, 25)
+Low 0 0 13
+Medium 0 13 25
+High 13 25 25
 Happiness
-Low (0, 5, 15)
-Medium (15, 35, 50)
-High (40, 65, 80)
+Low 0 5 15
+Medium 15 35 50
+High 40 65 80
 
 #Measurements
 Food = 6.5

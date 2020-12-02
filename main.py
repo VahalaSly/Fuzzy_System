@@ -75,9 +75,9 @@ def defuzzify(rules, measurements):
 
 def is_data_valid(fuzzy_sets, rules, measurements):
     if len(fuzzy_sets) == 0 or len(rules) == 0 or len(measurements) == 0:
-        ValueError("ERROR: One of the sections is empty!")
+        logging.warning("ERROR: One of the sections is empty!")
     if len(fuzzy_sets) <= len(measurements):
-        ValueError(
+        logging.warning(
             "ERROR: Not enough fuzzy sets have been added in the input, or too many measurements have been included. "
             "Make sure a fuzzy set is present for each variable, including consequent variables.")
     else:
@@ -110,8 +110,6 @@ def main():
         calculated_rulebase = defuzzify(ctrl_rules, measurements)
         print("The defuzzified value for " + rulebase_name + " is:")
         print(calculated_rulebase.output[rulebase_name])
-        # print(universe_variables["Tip"].view())
-
 
 if __name__ == "__main__":
     main()

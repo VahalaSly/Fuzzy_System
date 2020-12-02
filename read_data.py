@@ -82,15 +82,14 @@ def format_fuzzy_sets(fuzzysets_input):
     for item in fuzzysets_input:
         try:
             # use variable_names as key and dict of status as values
-            if "(" not in item:
+            if len(item.split(" ")) == 1:
                 variable_name = item
-                statuses = {}  # clean up statuses for new variable
             else:
-                status_name = item.split("(")[0].rstrip()
+                status = item.split(" ")
+                status_name = status[0].rstrip()
                 # remove parenthesis from status values and turn into float
-                status_values = item.split("(")[1]
-                status_values = status_values.replace('(', '').replace(')', '')
-                status_values = list(map(float, status_values.split(',')))
+                status_values = status[1:]
+                status_values = list(map(float, status_values))
                 if variable_name in fuzzysets:
                     fuzzysets[variable_name].append((status_name, status_values))
                 else:
