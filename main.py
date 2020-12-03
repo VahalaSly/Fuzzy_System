@@ -15,9 +15,9 @@ def build_fuzzy_universe(fuzzy_sets, rulebase_name):
         # now create the ctrl universe variable using the aforementioned range
         if variable_name.lower() == rulebase_name.lower():
             # the +2 is currently a mystery - doesn't work without it
-            universe_variables[variable_name] = ctrl.Consequent(np.arange(smallest, largest + 2), variable_name)
+            universe_variables[variable_name] = ctrl.Consequent(np.arange(smallest, largest), variable_name)
         else:
-            universe_variables[variable_name] = ctrl.Antecedent(np.arange(smallest, largest + 2), variable_name)
+            universe_variables[variable_name] = ctrl.Antecedent(np.arange(smallest, largest), variable_name)
         # adding each of the statuses and their values to the universe variables
         for status in variable_statuses:
             status_name = status[0]
@@ -48,8 +48,13 @@ def build_rules(rules, variables):
     args = 1
     ctrl_rules = []
     for rule in rules:
-        keywords = re.findall('(\w+) is (\w+)', rule)
-        for i in range(0, len(keywords) - 1):
+        rule_split = rule.split("then")
+        rule_antecedents = rule_split[0]
+        rule_consequents = rule_split[1]
+        keywords = re.findall('(\w+) is (\w+)', rule_antecedents)
+        then_statement = re.findall('(\w+) is (\w+)', rule_consequents)
+        # from examples it seems 'will be' needs to be handled too
+        for i in range(0, len(keywords)):
             if i == 0:
                 args = variables[keywords[i][0]][keywords[i][1]]
             else:
@@ -59,7 +64,7 @@ def build_rules(rules, variables):
                     args = args | variables[keywords[i][0]][keywords[i][1]]
                 else:
                     args = args
-        then_statement = variables[keywords[-1][0]][keywords[-1][1]]
+        then_statement = variables[then_statement[0][0]][then_statement[0][1]]
         ctrl_rules.append(ctrl.Rule(args, then_statement))
     return ctrl_rules
 
@@ -74,8 +79,13 @@ def defuzzify(rules, measurements):
 
 
 def is_data_valid(fuzzy_sets, rules, measurements):
-    if len(fuzzy_sets) == 0 or len(rules) == 0 or len(measurements) == 0:
-        logging.warning("ERROR: One of the sections is empty!")
+    if len(fuzzy_sets) == 0:
+        logging.error("Couldn't find any valid fuzzy sets!")
+    if len(rules) == 0:
+        logging.error("Couldn't find any valid rules!")
+    if len(measurements) == 0:
+        logging.error("Couldn't find any valid measurements!")
+
     if len(fuzzy_sets) <= len(measurements):
         logging.warning(
             "ERROR: Not enough fuzzy sets have been added in the input, or too many measurements have been included. "

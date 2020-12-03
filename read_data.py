@@ -55,6 +55,7 @@ def format_rules(rulebase_input):
     # <RulebaseName>
     # Rule<n>: if <variable_name> is <variable_status> [and|or] [<variable_name_i> is <variable_status_i>]
     # then <variable_name_j> is <variable_status_j>
+    warning = False
     rules = {}
     for item in rulebase_input:
         # we use this check to try and figure out which one is the rulebase name, and skip it
@@ -62,9 +63,11 @@ def format_rules(rulebase_input):
             continue
         else:
             # find the consequent -> we will use it as key to the dictionary containing the rules
-            consequent = re.findall('then (\w+)', item)
+            consequent = re.findall('then (\w+) is', item)
             if len(consequent) == 0:
-                logging.warning("Couldn't find a consequent for rule %s. Skipping rule..." % item)
+                warning = True
+                logging.warning("Couldn't find a consequent for %s. "
+                                "Skipping rule..." % item)
             else:
                 item = item.replace(": ", ":")
                 consequent = consequent[0]
@@ -72,6 +75,10 @@ def format_rules(rulebase_input):
                     rules[consequent].append(item.split(':')[1])
                 else:
                     rules[consequent] = [item.split(':')[1]]
+    if warning:
+        logging.warning("Please make sure the rules follow this structure:"
+                        "\n if <variable-1> is <status_x> [and|or] [<variable-n> is <status-n>] "
+                        "then <consequent_variable-i> is <status-j>")
     return rules
 
 
@@ -90,6 +97,8 @@ def format_fuzzy_sets(fuzzysets_input):
                 # remove parenthesis from status values and turn into float
                 status_values = status[1:]
                 status_values = list(map(float, status_values))
+                status_values = [status_values[0] - status_values[2], status_values[0], status_values[1],
+                                 status_values[1] + status_values[3]]
                 if variable_name in fuzzysets:
                     fuzzysets[variable_name].append((status_name, status_values))
                 else:
