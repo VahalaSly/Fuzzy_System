@@ -8,10 +8,10 @@ Rule 4:  If driving is bad and journey_time is long then tip is small
 
 happinessRulebase
 
-Rule 5: If driving is good and journey_time is short then happiness is big
+Rule 5: If driving is good and journey_time is short then happiness is high
 Rule 6: If driving is good or journey_time is short then happiness is moderate
 Rule 7: If driving is average or journey_time is medium then happiness is moderate
-Rule 8: If driving is bad and journey_time is long then happiness is small
+Rule 8: If driving is bad and journey_time is long then happiness is low
 
 #FuzzySets
 driving
@@ -34,9 +34,9 @@ big 150 150 50 50
 
 happiness
 
-small 50 50 50 50
-moderate 100 100 50 50
-big 150 150 50 50
+low 0 0 0 25
+moderate 45 55 20 20
+high 100 100 25 0
 
 #Measurements
 journey_time = 12

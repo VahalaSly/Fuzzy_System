@@ -22,11 +22,7 @@ def build_fuzzy_universe(fuzzy_sets, rulebase_name):
         for status in variable_statuses:
             status_name = status[0]
             status_values = status[1]
-            if len(status_values) == 3:
-                universe_variables[variable_name][status_name] = fuzz.trimf(universe_variables[variable_name].universe,
-                                                                            status_values)
-            if len(status_values) == 4:
-                universe_variables[variable_name][status_name] = fuzz.trapmf(universe_variables[variable_name].universe,
+            universe_variables[variable_name][status_name] = fuzz.trapmf(universe_variables[variable_name].universe,
                                                                              status_values)
     return universe_variables
 
@@ -99,8 +95,7 @@ def main():
     input_txt = read_data.read_input_txt("rules_and_data")
     # input_txt will return false if any of the 3 mandatory headers are missing
     if not input_txt:
-        logging.warning("The headers '#Rulebase', '#FuzzySets' and '#Measurements' are required before each section. "
-                        "Please make sure they are included in the input file and try again. Exiting...")
+        logging.warning("Exiting...")
         exit(1)
 
     # then, format the sections according to need
@@ -120,6 +115,7 @@ def main():
         calculated_rulebase = defuzzify(ctrl_rules, measurements)
         print("The defuzzified value for " + rulebase_name + " is:")
         print(calculated_rulebase.output[rulebase_name])
+
 
 if __name__ == "__main__":
     main()

@@ -14,7 +14,12 @@ def read_input_txt(filename):
     rulebase_count = 0
     fuzzysets_count = 0
     measurements_count = 0
-    file = open(filename, "r")
+    try:
+        file = open(filename, "r")
+    except FileNotFoundError as e:
+        logging.error(e)
+        logging.error("Check the name of the file and try again.")
+        return False
     for line in file:
         line = line.rstrip('\n')
         # these if-statements look for the headers and change the section
@@ -46,6 +51,8 @@ def read_input_txt(filename):
         if found_measurements & (line != ""):
             measurements.append(line.lower())
     if rulebase_count == 0 or fuzzysets_count == 0 or measurements_count == 0:
+        logging.warning("The headers '#Rulebase', '#FuzzySets' and '#Measurements' are required before each section. "
+                        "Please make sure they are included in the input file and try again.")
         return False
     return {"rulebase": rulebase, "fuzzysets": fuzzysets, "measurements": measurements}
 
@@ -92,11 +99,16 @@ def format_fuzzy_sets(fuzzysets_input):
             if len(item.split(" ")) == 1:
                 variable_name = item
             else:
-                status = item.split(" ")
+                status = item.replace("(", "").replace(")", "").replace(",", "").split(" ")
                 status_name = status[0].rstrip()
                 # remove parenthesis from status values and turn into float
                 status_values = status[1:]
                 status_values = list(map(float, status_values))
+                if len(status_values) < 4:
+                    logging.error("The system requires the fuzzy sets to be represented by 4-tuples"
+                                  " of the format 'a b α β'. Current tuple: {}".format(status_values))
+                    logging.warning("Exiting...")
+                    exit(1)
                 status_values = [status_values[0] - status_values[2], status_values[0], status_values[1],
                                  status_values[1] + status_values[3]]
                 if variable_name in fuzzysets:
