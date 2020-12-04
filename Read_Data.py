@@ -25,19 +25,19 @@ def read_input_txt(filename):
         # these if-statements look for the headers and change the section
         # it's currently been read to True, and the others to False
         # the _count variables make sure all sections are present in the txt file
-        if line == "#Rulebase":
+        if line.lower() == "#rulebase":
             found_rulebase = True
             found_fuzzysets = False
             found_measurements = False
             rulebase_count = 1
             continue
-        if line == "#FuzzySets":
+        if line.lower() == "#fuzzysets":
             found_rulebase = False
             found_fuzzysets = True
             found_measurements = False
             fuzzysets_count = 1
             continue
-        if line == "#Measurements":
+        if line.lower() == "#measurements":
             found_rulebase = False
             found_fuzzysets = False
             found_measurements = True
@@ -64,10 +64,11 @@ def format_rules(rulebase_input):
     # then <variable_name_j> is <variable_status_j>
     warning = False
     rules = {}
+    rulebase_name = ""
     for item in rulebase_input:
         # we use this check to try and figure out which one is the rulebase name, and skip it
         if ":" not in item:
-            continue
+            rulebase_name = item.rstrip()
         else:
             # find the consequent -> we will use it as key to the dictionary containing the rules
             consequent = re.findall('then (\w+) is', item)
@@ -78,10 +79,10 @@ def format_rules(rulebase_input):
             else:
                 item = item.replace(": ", ":")
                 consequent = consequent[0]
-                if consequent in rules:
-                    rules[consequent].append(item.split(':')[1])
+                if (rulebase_name, consequent) in rules:
+                    rules[(rulebase_name, consequent)].append(item.split(':')[1])
                 else:
-                    rules[consequent] = [item.split(':')[1]]
+                    rules[(rulebase_name, consequent)] = [item.split(':')[1]]
     if warning:
         logging.warning("Please make sure the rules follow this structure:"
                         "\n if <variable-1> is <status_x> [and|or] [<variable-n> is <status-n>] "
@@ -105,9 +106,8 @@ def format_fuzzy_sets(fuzzysets_input):
                 status_values = status[1:]
                 status_values = list(map(float, status_values))
                 if len(status_values) < 4:
-                    logging.error("The system requires the fuzzy sets to be represented by 4-tuples"
-                                  " of the format 'a b α β'. Current tuple: {}".format(status_values))
-                    logging.warning("Exiting...")
+                    logging.warning("The system requires the fuzzy sets to be represented by 4-tuples"
+                                    " of the format 'a b α β'. Current tuple: %s".format(status_values))
                     exit(1)
                 status_values = [status_values[0] - status_values[2], status_values[0], status_values[1],
                                  status_values[1] + status_values[3]]
