@@ -5,8 +5,8 @@ Takes a txt file as input with the following format:
 ```
   #Rulebase
   <RuleBaseName>
-  Rule 1:	if <variable-1> is <status_x> [and|or] [<variable-n> is <status-n>] then <consequent_variable-i> is <status-j>
-  Rule 2:	if <variable-2> is <status-y> [and|or] [<variable-n> is <status-n>] then <consequent_variable-i> is <status-j>
+  Rule1: if <variable-1> is [not] <status_x> [and|or] [<variable-n> is] [not] [<status-n>] then <consequent_variable-i> is <status-j>
+  Rule2: if <variable-2> is [not] <status-y> [and|or] [<variable-n> is] [not] [<status-n>] then <consequent_variable-i> is <status-j>
   ...
   
   #FuzzySets

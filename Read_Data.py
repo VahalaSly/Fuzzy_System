@@ -58,39 +58,33 @@ def read_input_txt(filename):
 
 
 def format_rules(rulebase_input):
-    # expected rules format:
-    # <RulebaseName>
-    # Rule<n>: if <variable_name> is <variable_status> [and|or] [<variable_name_i> is <variable_status_i>]
-    # then <variable_name_j> is <variable_status_j>
     warning = False
     rules = {}
     rulebase_name = ""
     for item in rulebase_input:
-        # we use this check to try and figure out which one is the rulebase name, and skip it
+        # we use this check to try and figure out which one is the rulebase name
         if ":" not in item:
             rulebase_name = item.rstrip()
         else:
-            # find the consequent -> we will use it as key to the dictionary containing the rules
-            consequent = re.findall('then (\w+) is', item)
-            if len(consequent) == 0:
+            is_valid = check_rule_validity(item)
+            if not is_valid:
                 warning = True
-                logging.warning("Couldn't find a consequent for %s. "
-                                "Skipping rule..." % item)
             else:
                 item = item.replace(": ", ":")
-                consequent = consequent[0]
+                # find the consequent -> we will use (rulebase, consequent) as key
+                # to the dictionary containing the rules
+                consequent = re.findall('then (\w+) is', item)[0]
                 if (rulebase_name, consequent) in rules:
                     rules[(rulebase_name, consequent)].append(item.split(':')[1])
                 else:
                     rules[(rulebase_name, consequent)] = [item.split(':')[1]]
     if warning:
         logging.warning("Please make sure the rules follow this structure:"
-                        "\n if <variable-1> is <status_x> [and|or] [<variable-n> is <status-n>] "
+                        "\n if <variable-1> is [not] <status_x> [and|or] [<variable-n> is [not] <status-n>] "
                         "then <consequent_variable-i> is <status-j>")
     return rules
 
 
-# returns the sets with format: {variable_name:{status_name:[status_values]}, {...}}}
 def format_fuzzy_sets(fuzzysets_input):
     fuzzysets = {}
     variable_name = ""
@@ -132,3 +126,19 @@ def format_measurements(measurements_input):
         except Exception as e:
             logging.error(e)
     return measurements
+
+
+def check_rule_validity(rule):
+    validity = True
+    consequent = re.findall('then (\w+) is', rule)
+    negative_consequent = re.findall('then (\w+) is not', rule)
+    if len(consequent) == 0:
+        validity = False
+        logging.warning("Couldn't find a consequent for %s. "
+                        "Skipping rule..." % rule)
+    elif len(negative_consequent) == 1:
+        validity = False
+        logging.warning("Invalid: %s"
+                        "\n Negative consequents are currently not supported."
+                        "\n Skipping rule..." % rule)
+    return validity

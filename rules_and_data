@@ -1,6 +1,5 @@
 #rulebase
 tippingRulebase
-
 Rule 1: If driving is good and journey_time is short then tip is big
 Rule 2: If driving is good or journey_time is short then tip is moderate
 Rule 3: If driving is average or journey_time is medium then tip is moderate

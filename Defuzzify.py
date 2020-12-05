@@ -52,22 +52,32 @@ def build_fuzzy_rules(rules, variables):
     for rule in rules:
         try:
             rule_split = rule.split("then")
-            rule_antecedents = rule_split[0]
-            rule_consequents = rule_split[1]
-            keywords = re.findall('(\w+) is (\w+)', rule_antecedents)
-            then_statement = re.findall('(\w+) is (\w+)', rule_consequents)
-            for i in range(0, len(keywords)):
-                if i == 0:
-                    args = variables[keywords[i][0]][keywords[i][1]]
-                else:
-                    if "and" in rule.lower():
-                        args = args & variables[keywords[i][0]][keywords[i][1]]
-                    elif "or" in rule.lower():
-                        args = args | variables[keywords[i][0]][keywords[i][1]]
-                    else:
-                        args = args
-            then_statement = variables[then_statement[0][0]][then_statement[0][1]]
-            ctrl_rules.append(ctrl.Rule(args, then_statement))
+            antecedents = dict(re.findall('(\w+)\s*is\s*[not\s]*(\w+)', rule_split[0]))
+            consequents = re.findall('(\w+)\s*is\s*[not\s]*(\w+)', rule_split[1])
+            words_in_rule = rule_split[0].split(" ")
+            # loops through the antecedent part of the rule. If it finds and/or,
+            # it grabs the next word as the antecedent and adds it to the rules
+            # if it finds `not', it appends it to the rule
+            for i in range(3, len(words_in_rule)):
+                try:
+                    if words_in_rule[i-3] == "if":
+                        args = variables[words_in_rule[i-2]][antecedents[words_in_rule[i-2]]]
+                    elif words_in_rule[i-3] == "and":
+                        if words_in_rule[i] == "not":
+                            args = args & ~ variables[words_in_rule[i-2]][antecedents[words_in_rule[i-2]]]
+                        else:
+                            args = args & variables[words_in_rule[i-2]][antecedents[words_in_rule[i-2]]]
+                    elif words_in_rule[i-3] == "or":
+                        if words_in_rule[i] == "not":
+                            args = args | ~ variables[words_in_rule[i-2]][antecedents[words_in_rule[i-2]]]
+                        else:
+                            args = args | variables[words_in_rule[i-2]][antecedents[words_in_rule[i-2]]]
+                except KeyError as e:
+                    logging.error("Could not recognise antecedent variable: {}. "
+                                  "Make sure each variable is only one word.".format(words_in_rule[i]))
+            # couldn't get consequent to handle not :(
+            consequent = variables[consequents[0][0]][consequents[0][1]]
+            ctrl_rules.append(ctrl.Rule(args, consequent))
         except Exception as e:
             logging.error(e)
     return ctrl_rules
