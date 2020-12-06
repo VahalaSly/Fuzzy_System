@@ -45,11 +45,11 @@ def read_input_txt(filename):
             continue
         # while the current section is true, add the next lines to array
         if found_rulebase & (line != ""):
-            rulebase.append(line.lower())
+            rulebase.append(line.lower().rstrip())
         if found_fuzzysets & (line != ""):
-            fuzzysets.append(line.lower())
+            fuzzysets.append(line.lower().rstrip())
         if found_measurements & (line != ""):
-            measurements.append(line.lower())
+            measurements.append(line.lower().rstrip())
     if rulebase_count == 0 or fuzzysets_count == 0 or measurements_count == 0:
         logging.warning("The headers '#Rulebase', '#FuzzySets' and '#Measurements' are required before each section. "
                         "Please make sure they are included in the input file and try again.")
@@ -110,7 +110,7 @@ def format_fuzzy_sets(fuzzysets_input):
                 else:
                     fuzzysets[variable_name] = [(status_name, status_values)]
         except Exception as e:
-            logging.error("Could not format fuzzy set {}. \n {}". format(item, e))
+            logging.error("Could not format fuzzy set {}. \n {}".format(item, e))
     return fuzzysets
 
 

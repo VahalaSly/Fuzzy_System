@@ -15,7 +15,7 @@ def build_fuzzy_universe(fuzzy_sets, consequent):
             smallest, largest = find_minmax_values(variable_statuses)
             # now create the ctrl universe variable using the aforementioned range
             if variable_name.lower() == consequent.lower():
-                # the +2 is currently a mystery - doesn't work without it
+                # the +1 is currently a mystery - doesn't work properly without it
                 universe_variables[variable_name] = ctrl.Consequent(np.arange(smallest, largest+1), variable_name)
             else:
                 universe_variables[variable_name] = ctrl.Antecedent(np.arange(smallest, largest+1), variable_name)
@@ -146,9 +146,6 @@ def main():
         print("The defuzzified suggested value of " + consequent + " for the " + rulebase_name + " is:")
         print(calculated_rulebase.output[consequent])
         universe_variables[consequent].view(sim=calculated_rulebase)
-        # universe_variables[consequent].view()
-        # universe_variables["germs"].view()
-        # universe_variables["dust"].view()
 
 
 if __name__ == "__main__":

@@ -17,10 +17,10 @@ medium 50 50 25 25
 high 100 100 45 0
 
 fan
-low 0 20 0 0
-moderate 15 35 0 0
-high 30 50 0 0
+low 0 10 0 10
+moderate 20 30 5 5
+high 40 50 10 0
 
 #measurements
-dust = 70
+dust = 50
 germs = 70
