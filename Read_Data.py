@@ -110,7 +110,7 @@ def format_fuzzy_sets(fuzzysets_input):
                 else:
                     fuzzysets[variable_name] = [(status_name, status_values)]
         except Exception as e:
-            logging.error(e)
+            logging.error("Could not format fuzzy set {}. \n {}". format(item, e))
     return fuzzysets
 
 

@@ -16,9 +16,9 @@ def build_fuzzy_universe(fuzzy_sets, consequent):
             # now create the ctrl universe variable using the aforementioned range
             if variable_name.lower() == consequent.lower():
                 # the +2 is currently a mystery - doesn't work without it
-                universe_variables[variable_name] = ctrl.Consequent(np.arange(smallest, largest), variable_name)
+                universe_variables[variable_name] = ctrl.Consequent(np.arange(smallest, largest+1), variable_name)
             else:
-                universe_variables[variable_name] = ctrl.Antecedent(np.arange(smallest, largest), variable_name)
+                universe_variables[variable_name] = ctrl.Antecedent(np.arange(smallest, largest+1), variable_name)
             # adding each of the statuses and their values to the universe variables
             for status in variable_statuses:
                 status_name = status[0]
@@ -52,8 +52,8 @@ def build_fuzzy_rules(rules, variables):
     for rule in rules:
         try:
             rule_split = rule.split("then")
-            antecedents = dict(re.findall('(\w+)\s*is\s*[not\s]*(\w+)', rule_split[0]))
-            consequents = re.findall('(\w+)\s*is\s*[not\s]*(\w+)', rule_split[1])
+            antecedents = dict(re.findall('(\w+)\s*is\s*[not]* (\w+)', rule_split[0]))
+            consequents = re.findall('(\w+)\s*is\s*[not]* (\w+)', rule_split[1])
             words_in_rule = rule_split[0].split(" ")
             # loops through the antecedent part of the rule. If it finds and/or,
             # it grabs the next word as the antecedent and adds it to the rules
@@ -91,21 +91,29 @@ def defuzzify(rules, measurements):
             rulebase.input[variable] = value
         except Exception as e:
             logging.error(e)
-    rulebase.compute()
+    try:
+        rulebase.compute()
+    except Exception as e:
+        logging.error(e)
+        exit()
     return rulebase
 
 
 def is_data_valid(fuzzy_sets, rules, measurements):
     if len(fuzzy_sets) == 0:
         logging.error("Couldn't find any valid fuzzy sets!")
+        return False
     if len(rules) == 0:
         logging.error("Couldn't find any valid rules!")
+        return False
     if len(measurements) == 0:
         logging.error("Couldn't find any valid measurements!")
+        return False
     if len(fuzzy_sets) <= len(measurements):
         logging.warning(
             "ERROR: Not enough fuzzy sets have been added in the input, or too many measurements have been included. "
             "Make sure a fuzzy set is present for each variable, including consequent variables.")
+        return False
     else:
         return True
 
@@ -138,6 +146,9 @@ def main():
         print("The defuzzified suggested value of " + consequent + " for the " + rulebase_name + " is:")
         print(calculated_rulebase.output[consequent])
         universe_variables[consequent].view(sim=calculated_rulebase)
+        # universe_variables[consequent].view()
+        # universe_variables["germs"].view()
+        # universe_variables["dust"].view()
 
 
 if __name__ == "__main__":
