@@ -18,15 +18,15 @@ def build_fuzzy_universe(fuzzy_sets, consequent):
                 # the +1 is currently a mystery - doesn't work properly without it
                 # if you add "bisector" or "lom" etc to ctrl.consequent you can get the other results
                 # todo for later perhaps?
-                universe_variables[variable_name] = ctrl.Consequent(np.arange(smallest, largest+1), variable_name)
+                universe_variables[variable_name] = ctrl.Consequent(np.arange(smallest, largest + 1), variable_name)
             else:
-                universe_variables[variable_name] = ctrl.Antecedent(np.arange(smallest, largest+1), variable_name)
+                universe_variables[variable_name] = ctrl.Antecedent(np.arange(smallest, largest + 1), variable_name)
             # adding each of the statuses and their values to the universe variables
             for status in variable_statuses:
                 status_name = status[0]
                 status_values = status[1]
                 universe_variables[variable_name][status_name] = fuzz.trapmf(universe_variables[variable_name].universe,
-                                                                                 status_values)
+                                                                             status_values)
         except Exception as e:
             logging.error(e)
     return universe_variables
@@ -62,18 +62,18 @@ def build_fuzzy_rules(rules, variables):
             # if it finds `not', it appends it to the rule
             for i in range(3, len(words_in_rule)):
                 try:
-                    if words_in_rule[i-3] == "if":
-                        args = variables[words_in_rule[i-2]][antecedents[words_in_rule[i-2]]]
-                    elif words_in_rule[i-3] == "and":
+                    if words_in_rule[i - 3] == "if":
+                        args = variables[words_in_rule[i - 2]][antecedents[words_in_rule[i - 2]]]
+                    elif words_in_rule[i - 3] == "and":
                         if words_in_rule[i] == "not":
-                            args = args & ~ variables[words_in_rule[i-2]][antecedents[words_in_rule[i-2]]]
+                            args = args & ~ variables[words_in_rule[i - 2]][antecedents[words_in_rule[i - 2]]]
                         else:
-                            args = args & variables[words_in_rule[i-2]][antecedents[words_in_rule[i-2]]]
-                    elif words_in_rule[i-3] == "or":
+                            args = args & variables[words_in_rule[i - 2]][antecedents[words_in_rule[i - 2]]]
+                    elif words_in_rule[i - 3] == "or":
                         if words_in_rule[i] == "not":
-                            args = args | ~ variables[words_in_rule[i-2]][antecedents[words_in_rule[i-2]]]
+                            args = args | ~ variables[words_in_rule[i - 2]][antecedents[words_in_rule[i - 2]]]
                         else:
-                            args = args | variables[words_in_rule[i-2]][antecedents[words_in_rule[i-2]]]
+                            args = args | variables[words_in_rule[i - 2]][antecedents[words_in_rule[i - 2]]]
                 except KeyError as e:
                     logging.error("Could not recognise antecedent variable: {}. "
                                   "Make sure each variable is only one word.".format(words_in_rule[i]))
