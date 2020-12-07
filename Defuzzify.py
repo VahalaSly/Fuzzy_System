@@ -16,6 +16,8 @@ def build_fuzzy_universe(fuzzy_sets, consequent):
             # now create the ctrl universe variable using the aforementioned range
             if variable_name.lower() == consequent.lower():
                 # the +1 is currently a mystery - doesn't work properly without it
+                # if you add "bisector" or "lom" etc to ctrl.consequent you can get the other results
+                # todo for later perhaps?
                 universe_variables[variable_name] = ctrl.Consequent(np.arange(smallest, largest+1), variable_name)
             else:
                 universe_variables[variable_name] = ctrl.Antecedent(np.arange(smallest, largest+1), variable_name)
